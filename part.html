@@ -13,69 +13,104 @@
 		<div id="Echarts" style="width: 480px;height: 270px;"></div>
 	</body>
 	<script>
-		var data = [];
-		for(var i=0;i<100;i++){
-			data[i]=i;
-		};
+//		var data = [];
+//		for(var i=0;i<100;i++){
+//			data[i]=i;
+//		};
 		
-////		function print_array(arr){  
-////		    for(var key in arr){  
-////		        if(typeof(arr[key])=='array'||typeof(arr[key])=='object'){//递归调用    
-////		            print_array(arr[key]);  
-////		        }else{  
-////		            document.write(key + ' = ' + arr[key] + '<br>');  
-////		        }  
-////		    }  
-////		};
-//		print_array(data);
-		var myChart = echarts.init(document.getElementById('Echarts'));
-		var option = {
-		    title: {
-		        text: '折线图堆叠'
-		    },
-		    tooltip: {
-		        trigger: 'axis'
-		    },
-		    legend: {
-		        data:['邮件营销','联盟广告']
-		    },
-		    grid: {
-		        x:10,
-                y:65,
-                x2:75,
-                y2:20,
-		        containLabel: true
-		    },
-		    xAxis: {
-		        type: 'category',
-		        boundaryGap: false,
-		        data: data,
-		        name:"单位：分钟",
-		        axisLabel:{
-	                 //X轴刻度配置
-	                 interval:4//0：表示全部显示不间隔；auto:表示自动根据刻度个数和宽度自动设置间隔个数
-	            }
-		        
-		    },
-		    yAxis: {
-		        type: 'value',
-		        name:"单位：haha"
-		    },
-		    series: [
-		        {
-		            name:'邮件营销',
-		            type:'line',
-		            stack: '总量',
-		            data:[120, 132, 101, 134, 90, 230, 210]
-		        },
-		        {
-		            name:'联盟广告',
-		            type:'line',
-		            stack: '总量',
-		            data:[220, 182, 191, 234, 290, 330, 310]
-		        }
-		    ]
+		var page = {
+			dataX:[],
+			dataY:[],
+			dataY2:[],
+			dataGet:function(){
+				var _this = this;
+				$.ajax({
+					type:"get",
+					url:"test.json",
+					dataXype:"json",
+					success:function(data){
+						
+						if(_this.dataX.length>12){
+							_this.dataX.shift();
+							_this.dataX.push(data.data[0].nTime);
+						}else{
+							_this.dataX.push(data.data[0].nTime);
+						};
+						if(_this.dataY.length>12){
+							_this.dataY.shift();
+							_this.dataY.push(data.data[0].D);
+						}else{
+							_this.dataY.push(data.data[0].D);
+						};
+						if(_this.dataY2.length>12){
+							_this.dataY2.shift();
+							_this.dataY2.push(data.data[0].D2);
+						}else{
+							_this.dataY2.push(data.data[0].D2);
+						};
+						ec(_this.dataX,_this.dataY,_this.dataY2);
+					},
+					error:function(){
+						alert(1);
+					}
+				});
+				function ec(d,D,D2){
+					myChart.setOption(option = {
+						    title: {
+						        text: '折线图堆叠'
+						    },
+						    tooltip: {
+						        trigger: 'axis'
+						    },
+						    legend: {
+						        data:['邮件营销','联盟广告']
+						    },
+						    grid: {
+						        x:10,
+				                y:65,
+				                x2:75,
+				                y2:20,
+						        containLabel: true
+						    },
+						    xAxis: {
+						        type: 'category',
+						        boundaryGap: false,
+						        data: d,
+						        name:"单位：分钟",
+						        axisLabel:{
+					                 //X轴刻度配置
+					                 interval:0//0：表示全部显示不间隔；auto:表示自动根据刻度个数和宽度自动设置间隔个数
+					            }
+						        
+						    },
+						    yAxis: {
+						        type: 'value',
+						        name:"单位：haha"
+						    },
+						    series: [
+						        {
+						            name:'邮件营销',
+						            type:'line',
+						            stack: '总量',
+						            data:D
+						        },
+						        {
+						            name:'联盟广告',
+						            type:'line',
+						            stack: '总量',
+						            data:D2
+						        }
+						    ]
+					});
+				}
+			}
 		};
-		myChart.setOption(option);
+		setInterval(function(){
+			page.dataGet();
+		},1000);
+//		page.dataGet();
+		var myChart = echarts.init(document.getElementById('Echarts'));
+		
+		
 	</script>
 </html>
